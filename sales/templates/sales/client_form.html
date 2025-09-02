@@ -1,0 +1,69 @@
+{% extends 'inventory_app/base.html' %}
+{% block title %}{% if client %}Edit Client{% else %}Add Client{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">
+        {% if client %}Edit Client{% else %}Add Client{% endif %}
+    </h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+            <label for="id_name">Company Name</label>
+            <input type="text" name="name" class="form-control" id="id_name"
+                   value="{{ form.name.value|default:client.name|default_if_none:'' }}">
+            {% if form.name.errors %}
+                <div class="text-danger small">{{ form.name.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_po_box">PO Box</label>
+            <input type="text" name="po_box" class="form-control" id="id_po_box"
+                   value="{{ form.po_box.value|default:client.po_box|default_if_none:'' }}">
+            {% if form.po_box.errors %}
+                <div class="text-danger small">{{ form.po_box.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_location">Location</label>
+            <input type="text" name="location" class="form-control" id="id_location"
+                   value="{{ form.location.value|default:client.location|default_if_none:'' }}">
+            {% if form.location.errors %}
+                <div class="text-danger small">{{ form.location.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_telephone">Telephone</label>
+            <input type="text" name="telephone" class="form-control" id="id_telephone"
+                   value="{{ form.telephone.value|default:client.telephone|default_if_none:'' }}">
+            {% if form.telephone.errors %}
+                <div class="text-danger small">{{ form.telephone.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="id_email">Email</label>
+            <input type="email" name="email" class="form-control" id="id_email"
+                   value="{{ form.email.value|default:client.email|default_if_none:'' }}">
+            {% if form.email.errors %}
+                <div class="text-danger small">{{ form.email.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="id_pin">PIN</label>
+            <input type="text" name="pin" class="form-control" id="id_pin"
+                   value="{{ form.pin.value|default:client.pin|default_if_none:'' }}">
+            {% if form.pin.errors %}
+                <div class="text-danger small">{{ form.pin.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}

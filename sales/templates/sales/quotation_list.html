@@ -1,0 +1,48 @@
+{% extends "inventory_app/base.html" %}
+{% block title %}Quotations{% endblock %}
+{% load humanize %}
+
+
+{% block content %}
+<h2>Quotations</h2>
+
+<a href="{% url 'sales:quotation_create' %}" class="btn btn-primary mb-3">Add Quotation</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Quotation Number</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Subtotal</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for quotation in quotations %}
+        <tr>
+            <td>{{ quotation.quotation_number }}</td>
+            <td>{{ quotation.client.name }}</td>
+            <td>{{ quotation.date }}</td>
+            <td>{{ quotation.subtotal|floatformat:2|intcomma }}</td>
+            <td>{{ quotation.tax|floatformat:2|intcomma }}</td>
+            <td>{{ quotation.total|floatformat:2|intcomma }}</td>
+            <td>
+                <a href="{% url 'sales:quotation_detail' quotation.id %}" class="btn btn-sm btn-info">View</a>
+                <a href="{% url 'sales:quotation_edit' quotation.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{% url 'sales:quotation_delete' quotation.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No quotations found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

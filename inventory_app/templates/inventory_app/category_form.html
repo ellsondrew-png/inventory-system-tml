@@ -1,0 +1,24 @@
+{% extends 'inventory_app/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">
+        {% if category %} Edit Category {% else %} Add Category {% endif %}
+    </h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">Name</label>
+                    <input type="text" name="name" id="id_name" class="form-control"
+                           value="{{ category.name|default:'' }}">
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+                <a href="{% url 'category_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

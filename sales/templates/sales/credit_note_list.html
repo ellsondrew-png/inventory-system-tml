@@ -1,0 +1,92 @@
+{% extends 'inventory_app/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="mb-4">
+    <h1 class="h3 text-gray-800">Credit Notes</h1>
+    <a href="{% url 'sales:credit_note_create' %}" class="btn btn-primary btn-sm mt-2">
+      <i class="fas fa-plus"></i> Add Credit Note
+    </a>
+  </div>
+
+  <!-- Credit Note Table -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Credit Note List</h6>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle text-nowrap" id="creditNoteTable" width="100%" cellspacing="0">
+          <thead class="table-light">
+            <tr>
+              <th>C/Note #</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Invoice #</th>
+              <th>Order #</th>
+              <th>Subtotal</th>
+              <th>Tax</th>
+              <th>Total</th>
+              <th style="width: 220px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for credit_note in credit_notes %}
+            <tr>
+              <td>{{ credit_note.credit_note_number }}</td>
+              <td>{{ credit_note.client.name }}</td>
+              <td>{{ credit_note.date|date:"d M Y" }}</td>
+              <td>{{ credit_note.invoice.invoice_number }}</td>
+              <td>{{ credit_note.order_number }}</td>
+              <td>{{ credit_note.subtotal|floatformat:2|intcomma }}</td>
+              <td>{{ credit_note.tax|floatformat:2|intcomma }}</td>
+              <td>{{ credit_note.total|floatformat:2|intcomma }}</td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <a href="{% url 'sales:credit_note_detail' credit_note.id %}" class="btn btn-info btn-sm d-flex align-items-center">
+                    <i class="fas fa-eye me-1"></i> View
+                  </a>
+                  <a href="{% url 'sales:credit_note_edit' credit_note.id %}" class="btn btn-warning btn-sm d-flex align-items-center">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </a>
+                  <form action="{% url 'sales:credit_note_delete' credit_note.id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm d-flex align-items-center" onclick="return confirm('Are you sure?')">
+                      <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center">No credit notes found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // DataTables initialization
+  $(document).ready(function() {
+    $('#creditNoteTable').DataTable({
+      "ordering": true,
+      "order": [[2, "desc"]],  // order by date descending
+      "pageLength": 10,
+      "columnDefs": [
+        { "orderable": false, "targets": -1 }  // disable ordering for Actions
+      ]
+    });
+  });
+</script>
+{% endblock %}

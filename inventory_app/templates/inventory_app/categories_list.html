@@ -1,0 +1,40 @@
+{% extends 'inventory_app/base.html' %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">Categories</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <a href="{% url 'category_create' %}" class="btn btn-primary btn-sm">Add Category</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>{{ category.id }}</td>
+                        <td>{{ category.name }}</td>
+                        <td>
+                            <a href="{% url 'category_update' category.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'category_delete' category.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No categories found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'inventory_app/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Create Delivery Note</h1>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <!-- Client Selection -->
+    <div class="mb-3">
+      <label for="client" class="form-label">Client</label>
+      <select name="client" id="client" class="form-control" required>
+        <option value="">Select Client</option>
+        {% for client in clients %}
+        <option value="{{ client.id }}" {% if note and note.client.id == client.id %}selected{% endif %}>
+          {{ client.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Order Number -->
+    <div class="mb-3">
+      <label for="order_number" class="form-label">Order Number (optional)</label>
+      <input type="text" name="order_number" id="order_number" class="form-control" 
+             value="{% if note %}{{ note.order_number }}{% endif %}">
+    </div>
+
+    <!-- Invoice (optional) -->
+    <div class="mb-3">
+      <label for="invoice" class="form-label">Invoice (optional)</label>
+      <select name="invoice" id="invoice" class="form-control">
+        <option value="">Select Invoice</option>
+        {% for inv in invoices %}
+        <option value="{{ inv.id }}" {% if note and note.invoice and note.invoice.id == inv.id %}selected{% endif %}>
+          {{ inv.invoice_number }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Items Table -->
+    <div class="mb-3">
+      <label class="form-label">Items</label>
+      <table class="table table-bordered" id="itemsTable">
+        <thead>
+          <tr>
+            <th>Designation</th>
+            <th>Description</th>
+            <th>Brand</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if note %}
+            {% for item in note.items.all %}
+            <tr>
+              <td><input type="text" name="designation" class="form-control" value="{{ item.designation }}"></td>
+              <td><input type="text" name="description" class="form-control" value="{{ item.description }}"></td>
+              <td><input type="text" name="brand" class="form-control" value="{{ item.brand }}"></td>
+              <td><input type="number" name="quantity" class="form-control" value="{{ item.quantity }}"></td>
+              <td><input type="number" name="unit_price" class="form-control" value="{{ item.unit_price }}" step="0.01"></td>
+              <td><input type="number" name="amount" class="form-control" value="{{ item.amount }}" step="0.01" readonly></td>
+              <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+            </tr>
+            {% endfor %}
+          {% else %}
+          <!-- First row ready for input -->
+          <tr>
+            <td><input type="text" name="designation" class="form-control"></td>
+            <td><input type="text" name="description" class="form-control"></td>
+            <td><input type="text" name="brand" class="form-control"></td>
+            <td><input type="number" name="quantity" class="form-control"></td>
+            <td><input type="number" name="unit_price" class="form-control" step="0.01"></td>
+            <td><input type="number" name="amount" class="form-control" step="0.01" readonly></td>
+            <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-secondary btn-sm" id="addItem">Add Item</button>
+    </div>
+
+    <!-- Save / Cancel -->
+    <div class="mb-3 mt-3">
+      <button type="submit" class="btn btn-primary">Save Delivery Note</button>
+      <a href="{% url 'sales:delivery_note_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+<!-- JS for adding/removing items dynamically and live amount calculation -->
+<script>
+// Calculate amount live
+function updateAmount(row) {
+    const qty = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
+    const price = parseFloat(row.querySelector('input[name="unit_price"]').value) || 0;
+    row.querySelector('input[name="amount"]').value = (qty * price).toFixed(2);
+}
+
+// Attach event listeners to all rows
+function attachListeners(row) {
+    row.querySelector('input[name="quantity"]').addEventListener('input', () => updateAmount(row));
+    row.querySelector('input[name="unit_price"]').addEventListener('input', () => updateAmount(row));
+}
+
+// Initial row
+document.querySelectorAll('#itemsTable tbody tr').forEach(attachListeners);
+
+// Add new row dynamically
+document.getElementById('addItem').addEventListener('click', function() {
+    const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+    const row = table.insertRow();
+    row.innerHTML = `
+      <td><input type="text" name="designation" class="form-control"></td>
+      <td><input type="text" name="description" class="form-control"></td>
+      <td><input type="text" name="brand" class="form-control"></td>
+      <td><input type="number" name="quantity" class="form-control"></td>
+      <td><input type="number" name="unit_price" class="form-control" step="0.01"></td>
+      <td><input type="number" name="amount" class="form-control" step="0.01" readonly></td>
+      <td><button type="button" class="btn btn-danger btn-sm remove-item">Delete</button></td>
+    `;
+    attachListeners(row);
+});
+
+// Remove item
+document.addEventListener('click', function(e){
+    if(e.target && e.target.classList.contains('remove-item')){
+        e.target.closest('tr').remove();
+    }
+});
+</script>
+{% endblock %}

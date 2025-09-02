@@ -1,0 +1,175 @@
+{% extends 'inventory_app/base.html' %}
+{% load static %}
+
+{% block title %}Create/Edit Credit Note{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h3 mb-4 text-gray-800">{% if credit_note %}Edit{% else %}Create{% endif %} Credit Note</h1>
+
+  <form method="POST" id="creditNoteForm">
+    {% csrf_token %}
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <!-- Client -->
+        <div class="form-group mb-3">
+          <label for="client">Client</label>
+          <select name="client" id="client" class="form-control" required>
+            <option value="">Select Client</option>
+            {% for c in clients %}
+              <option value="{{ c.id }}" {% if credit_note and credit_note.client.id == c.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Prepared By -->
+        <div class="form-group mb-3">
+          <label for="prepared_by">Prepared By</label>
+          <input type="text" class="form-control" id="prepared_by" name="prepared_by" 
+                 value="{% if credit_note %}{{ credit_note.prepared_by }}{% endif %}" required>
+        </div>
+
+        <!-- Invoice Dropdown -->
+        <div class="form-group mb-3">
+          <label for="invoice">Invoice</label>
+          <select name="invoice" id="invoice" class="form-control">
+            <option value="">Select Invoice</option>
+            {% for inv in invoices %}
+              <option value="{{ inv.id }}" 
+                data-order="{{ inv.order_number }}" 
+                data-client="{{ inv.client.id }}" 
+                data-items='[
+                  {% for item in inv.items.all %}
+                    {"designation": "{{ item.designation|escapejs }}", 
+                     "description": "{{ item.description|escapejs }}", 
+                     "brand": "{{ item.brand|escapejs }}", 
+                     "quantity": "{{ item.quantity }}", 
+                     "unit_price": "{{ item.unit_price }}"}
+                     {% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ]'
+                {% if credit_note and credit_note.invoice and credit_note.invoice.id == inv.id %}selected{% endif %}>
+                {{ inv.invoice_number }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Auto-filled Order Number -->
+        <div class="form-group mb-3">
+          <label for="order_number">Order Number</label>
+          <input type="text" class="form-control" id="order_number" name="order_number" 
+                 value="{% if credit_note %}{{ credit_note.order_number }}{% endif %}" readonly>
+        </div>
+
+        <!-- Items Table -->
+        <h5>Credit Note Items</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered" id="itemsTable">
+            <thead class="thead-light">
+              <tr>
+                <th>Designation</th>
+                <th>Description</th>
+                <th>Brand</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if credit_note %}
+                {% for item in credit_note.items.all %}
+                  <tr>
+                    <td><input type="text" name="designation" class="form-control" value="{{ item.designation }}"></td>
+                    <td><input type="text" name="description" class="form-control" value="{{ item.description }}" required></td>
+                    <td><input type="text" name="brand" class="form-control" value="{{ item.brand }}"></td>
+                    <td><input type="number" name="quantity" class="form-control qty" value="{{ item.quantity }}" min="1" required></td>
+                    <td><input type="number" name="unit_price" class="form-control unit_price" value="{{ item.unit_price }}" step="0.01" min="0" required></td>
+                    <td><input type="number" name="amount" class="form-control amount" value="{{ item.amount }}" readonly></td>
+                    <td><button type="button" class="btn btn-danger btn-sm delete-row">Delete</button></td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Item Button -->
+        <button type="button" class="btn btn-primary mb-3" id="addItem">Add Item</button>
+
+        <!-- Save/Cancel -->
+        <div class="mt-3">
+          <button type="submit" class="btn btn-success">Save Credit Note</button>
+          <a href="{% url 'sales:credit_note_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const invoiceSelect = document.getElementById('invoice');
+    const orderInput = document.getElementById('order_number');
+    const clientSelect = document.getElementById('client');
+    const itemsTableBody = document.querySelector('#itemsTable tbody');
+
+    function recalcAmount(row) {
+      const qty = parseFloat(row.querySelector('.qty').value) || 0;
+      const price = parseFloat(row.querySelector('.unit_price').value) || 0;
+      row.querySelector('.amount').value = (qty * price).toFixed(2);
+    }
+
+    function addRow(item) {
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="text" name="designation" class="form-control" value="${item.designation || ''}"></td>
+        <td><input type="text" name="description" class="form-control" value="${item.description || ''}" required></td>
+        <td><input type="text" name="brand" class="form-control" value="${item.brand || ''}"></td>
+        <td><input type="number" name="quantity" class="form-control qty" value="${item.quantity || 1}" min="1" required></td>
+        <td><input type="number" name="unit_price" class="form-control unit_price" value="${item.unit_price || 0}" step="0.01" min="0" required></td>
+        <td><input type="number" name="amount" class="form-control amount" value="0.00" readonly></td>
+        <td><button type="button" class="btn btn-danger btn-sm delete-row">Delete</button></td>
+      `;
+      itemsTableBody.appendChild(newRow);
+
+      newRow.querySelector('.qty').addEventListener('input', () => recalcAmount(newRow));
+      newRow.querySelector('.unit_price').addEventListener('input', () => recalcAmount(newRow));
+      newRow.querySelector('.delete-row').addEventListener('click', () => newRow.remove());
+      recalcAmount(newRow);
+    }
+
+    // Auto-fill client, order, and items on invoice change
+    invoiceSelect.addEventListener('change', function() {
+      const selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+      const orderNumber = selectedOption.getAttribute('data-order') || "";
+      const clientId = selectedOption.getAttribute('data-client') || "";
+      const itemsJson = selectedOption.getAttribute('data-items') || "[]";
+
+      orderInput.value = orderNumber;
+      if (clientId) clientSelect.value = clientId;
+
+      // clear old items
+      itemsTableBody.innerHTML = "";
+      try {
+        const items = JSON.parse(itemsJson);
+        items.forEach(i => addRow(i));
+      } catch(e) {
+        console.error("Failed to parse items", e);
+      }
+    });
+
+    document.getElementById('addItem').addEventListener('click', () => addRow({}));
+
+    // initialize existing rows
+    document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
+      row.querySelector('.qty').addEventListener('input', () => recalcAmount(row));
+      row.querySelector('.unit_price').addEventListener('input', () => recalcAmount(row));
+      row.querySelector('.delete-row').addEventListener('click', () => row.remove());
+      recalcAmount(row);
+    });
+  });
+</script>
+{% endblock %}

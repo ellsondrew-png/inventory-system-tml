@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'inventory_app/img/faviconwhite.png' %}" type="image/png">
+
+    <title>{% block title %}Inventory Dashboard{% endblock %}</title>
+    <link href="{% static 'inventory_app/css/sb-admin-2.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'inventory_app/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
+    <style>
+        .bg-gradient-primary {
+            background-color: #013588 !important;
+            background-image: none !important;
+        }
+
+        .sidebar .nav-item .nav-link {
+            color: #fff;
+        }
+
+        .sidebar .nav-item .nav-link:hover {
+            color: #ffd700;
+        }
+
+        /* Active link highlighting */
+        .sidebar .nav-item.active .nav-link {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffd700;
+        }
+
+        /* Adjust topbar buttons to align with search bar */
+        .topbar-buttons {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .topbar-buttons .btn {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body id="{% block body_id %}page-top{% endblock %}">
+
+<div id="wrapper">
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'dashboard' %}">
+            <div class="sidebar-brand-icon">
+                <img src="{% static 'inventory_app/img/tml_logo.png' %}" alt="TML Logo" style="height:100px; width:auto;">
+            </div>
+            <div class="sidebar-brand-text mx-2">Inventory</div>
+        </a>
+        <hr class="sidebar-divider my-0">
+
+        <li class="nav-item {% if request.path == '/' or request.path == '/dashboard/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+
+        <li class="nav-item {% if '/category/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'category_list' %}">
+                <i class="fas fa-fw fa-tags"></i>
+                <span>Categories</span>
+            </a>
+        </li>
+
+        <li class="nav-item {% if '/product/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'product_list' %}">
+                <i class="fas fa-fw fa-box"></i>
+                <span>Products</span>
+            </a>
+        </li>
+
+        <li class="nav-item {% if '/stock-movement/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'stock_movement_list' %}">
+                <i class="fas fa-fw fa-exchange-alt"></i>
+                <span>Stock Movements</span>
+            </a>
+        </li>
+
+        <!-- Sales Sections -->
+        <hr class="sidebar-divider">
+        <li class="nav-item {% if '/clients/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'sales:client_list' %}">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Clients</span>
+            </a>
+        </li>
+        <li class="nav-item {% if '/quotations/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'sales:quotation_list' %}">
+                <i class="fas fa-fw fa-file-invoice"></i>
+                <span>Quotations</span>
+            </a>
+        </li>
+        <li class="nav-item {% if '/invoices/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'sales:invoice_list' %}">
+                <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                <span>Invoices</span>
+            </a>
+        </li>
+        <li class="nav-item {% if '/delivery-notes/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'sales:delivery_note_list' %}">
+                <i class="fas fa-fw fa-truck"></i>
+                <span>Delivery Notes</span>
+            </a>
+        </li>
+        <li class="nav-item">
+             <a class="nav-link" href="{% url 'sales:credit_note_list' %}">
+                 <i class="fas fa-receipt"></i>
+                 <span>Credit Notes</span>
+             </a>
+        </li>
+
+
+        <hr class="sidebar-divider d-none d-md-block">
+        {% if user.is_authenticated %}
+        <li class="nav-item {% if '/profile/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'profile_view' %}">
+                <i class="fas fa-user fa-fw"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+        <li class="nav-item {% if '/profile/edit/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'profile_edit' %}">
+                <i class="fas fa-edit fa-fw"></i>
+                <span>Edit Profile</span>
+            </a>
+        </li>
+        <li class="nav-item {% if '/password-change/' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'password_change' %}">
+                <i class="fas fa-key fa-fw"></i>
+                <span>Change Password</span>
+            </a>
+        </li>
+        {% endif %}
+
+        <hr class="sidebar-divider d-none d-md-block">
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+    </ul>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <!-- Search Form -->
+                <form method="get" action="{% url 'product_list' %}" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search products..."
+                               aria-label="Search" aria-describedby="basic-addon2" name="q">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Topbar Buttons (Stock In/Out + Logout) -->
+                <div class="topbar-buttons">
+                    <a class="btn btn-success" href="{% url 'stock_in_by_barcode' %}">
+                        <i class="fas fa-plus"></i> Stock In
+                    </a>
+                    <a class="btn btn-danger" href="{% url 'stock_out_by_barcode' %}">
+                        <i class="fas fa-minus"></i> Stock Out
+                    </a>
+                    <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                </div>
+
+            </nav>
+
+            <div class="container-fluid mt-4">
+                {% block content %}
+                <h1 class="h3 mb-4 text-gray-800">Welcome to the Inventory Dashboard</h1>
+                {% endblock %}
+            </div>
+
+        </div>
+
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>© Transmission Masters Ltd 2025</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<script src="{% static 'inventory_app/js/jquery.min.js' %}"></script>
+<script src="{% static 'inventory_app/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'inventory_app/js/jquery.easing.min.js' %}"></script>
+<script src="{% static 'inventory_app/js/sb-admin-2.min.js' %}"></script>
+
+</body>
+</html>

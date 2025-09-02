@@ -1,0 +1,19 @@
+{% extends 'inventory_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>User Profile</h2>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>First Name:</strong> {{ user.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Role:</strong> {% if user.groups.first %}{{ user.groups.first.name }}{% else %}N/A{% endif %}</p>
+            <a href="{% url 'profile_edit' %}" class="btn btn-primary mt-2">Edit Profile</a>
+            <a href="{% url 'password_change' %}" class="btn btn-warning mt-2">Change Password</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

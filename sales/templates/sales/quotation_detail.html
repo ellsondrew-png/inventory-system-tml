@@ -1,0 +1,50 @@
+{% extends 'sales/document_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block logo_url %}
+  {% static 'inventory_app/img/tml_logo_blue.png' %}
+{% endblock %}
+
+{% block title %}Quotation #{{ quotation.id }}{% endblock %}
+{% block doc_type %}Quotation{% endblock %}
+{% block doc_number %}{{ quotation.quotation_number }}{% endblock %}
+{% block date %}{{ quotation.date|date:"d M Y" }}{% endblock %}
+
+{% block customer_info %}
+<p class="font-bold">Bill To:</p>
+<p class="font-bold">{{ quotation.client.name }}</p>
+<p>Tel: {{ quotation.client.telephone }}</p>
+<p>{{ quotation.client.email }}</p>
+<p>P.O. Box: {{ quotation.client.po_box }}</p>
+<p>{{ quotation.client.location }}</p>
+<p>KRA PIN: {{ quotation.client.pin }}</p>
+
+
+{% endblock %}
+
+{% block items_rows %}
+{% for item in item_amounts %}
+<tr class="text-xs">
+  <td class="border-b py-3 pl-3">{{ forloop.counter }}</td>
+  <td class="border-b py-3 pl-2">{{ item.designation }}</td>
+  <td class="border-b py-3 pl-2">{{ item.description }}</td>
+  <td class="border-b py-3 pl-2">{{ item.brand }}</td>
+  <td class="border-b py-3 pl-2 text-center">{{ item.quantity }}</td>
+  <td class="border-b py-3 pl-2 text-right">{{ item.unit_price|floatformat:2|intcomma }}</td>
+  <td class="border-b py-3 pl-2 pr-3 text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block subtotal %}{{ subtotal|floatformat:2|intcomma }}{% endblock %}
+{% block tax %}{{ tax|floatformat:2|intcomma }}{% endblock %}
+{% block total %}{{ total|floatformat:2|intcomma }}{% endblock %}
+
+{% block payment_details %}
+<div class="mt-4">
+  <p class="text-main font-bold">Prepared By:</p>
+  <p>{{ quotation.prepared_by }}</p>
+</div>
+{% endblock %}
+

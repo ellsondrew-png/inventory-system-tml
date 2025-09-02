@@ -1,0 +1,56 @@
+{% extends 'sales/document_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block logo_url %}
+  {% static 'inventory_app/img/tml_logo_blue.png' %}
+{% endblock %}
+
+{% block title %}Invoice #{{ invoice.invoice_number }}{% endblock %}
+{% block doc_type %}Invoice{% endblock %}
+{% block doc_number %}{{ invoice.invoice_number }}{% endblock %}
+{% block date %}{{ invoice.date|date:"d M Y" }}{% endblock %}
+
+{% block customer_info %}
+<p class="font-bold">Bill To:</p>
+<p class="font-bold">{{ invoice.client.name }}</p>
+<p>Tel: {{ invoice.client.telephone }}</p>
+<p>{{ invoice.client.email }}</p>
+<p>P.O. Box: {{ invoice.client.po_box }}</p>
+<p>{{ invoice.client.location }}</p>
+<p>KRA PIN: {{ invoice.client.pin }}</p>
+<p><strong>L.P.O:</strong> {{ invoice.order_number }}</p>
+{% endblock %}
+
+{% block items_rows %}
+{% for item in invoice.items.all %}
+<tr class="text-xs">
+  <td class="border-b py-3 pl-3">{{ item.item_number }}</td>
+  <td class="border-b py-3 pl-2">{{ item.designation }}</td>
+  <td class="border-b py-3 pl-2">{{ item.description }}</td>
+  <td class="border-b py-3 pl-2">{{ item.brand }}</td>
+  <td class="border-b py-3 pl-2 text-center">{{ item.quantity }}</td>
+  <td class="border-b py-3 pl-2 text-right">{{ item.unit_price|floatformat:2|intcomma }}</td>
+  <td class="border-b py-3 pl-2 pr-3 text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block subtotal %}{{ invoice.subtotal|floatformat:2|intcomma }}{% endblock %}
+{% block tax %}{{ invoice.tax|floatformat:2|intcomma }}{% endblock %}
+{% block total %}{{ invoice.total|floatformat:2|intcomma }}{% endblock %}
+
+{% block payment_details %}
+
+<div class="mt-4 d-flex justify-content-start align-items-center">
+  <div class="me-5">
+    <p class="text-main font-bold">D/Note No:</p>
+    <p>_____________________________________________</p>
+  </div>
+  <div>
+    <p class="text-main font-bold">Signature:</p>
+    <p>_____________________________________________</p>
+  </div>
+</div>
+
+{% endblock %}

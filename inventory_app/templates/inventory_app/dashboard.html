@@ -1,0 +1,270 @@
+{% extends "inventory_app/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+
+<div class="row">
+
+  <!-- Categories Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Categories
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">
+              {{ categories_count }}
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-list fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-success shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+              Products
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">
+              {{ products_count }}
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-box fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Movements Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-info shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+              Stock Movements
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">
+              {{ stock_movements_count }}
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Earnings Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-warning shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+              Earnings (Monthly)
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">
+              KSh 
+              {% if earnings_values %}
+                {{ earnings_values|last }}
+              {% else %}
+                0
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-coins fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Links -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow py-2 px-3">
+            <h6 class="font-weight-bold text-primary mb-2">Quick Actions</h6>
+            <a href="{% url 'product_create' %}" class="btn btn-success btn-sm">Add Product</a>&nbsp;
+            <a href="{% url 'category_create' %}" class="btn btn-primary btn-sm">Add Category</a>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow py-2 px-3">
+            <h6 class="font-weight-bold text-danger mb-2">Low Stock Alerts</h6>
+            {% if low_stock_products %}
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Brand</th>
+                            <th>Quantity</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.brand }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>{{ product.category.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-center mb-0">All products have sufficient stock.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Stock Movements -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Stock Movements</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Reason</th>
+                                <th>Performed By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in recent_movements %}
+                            <tr>
+                                <td>{{ movement.date }}</td>
+                                <td>{{ movement.product.name }}</td>
+                                <td>
+                                    {% if movement.movement_type == 'IN' %}
+                                        <span class="badge badge-success">Stock In</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Stock Out</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ movement.quantity }}</td>
+                                <td>{{ movement.reason|default:"-" }}</td>
+                                <td>{{ movement.performed_by.username }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No recent stock movements</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row">
+    <!-- Doughnut: Stock In vs Out -->
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Stock Movements (In vs Out)</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="stockMovementsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Chart: Earnings Overview -->
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Earnings Overview (Ksh)</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="earningsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Doughnut Chart: Stock Movements
+    const ctxDoughnut = document.getElementById('stockMovementsChart').getContext('2d');
+    new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+            labels: ["Stock In", "Stock Out"],
+            datasets: [{
+                data: [{{ stock_in_count }}, {{ stock_out_count }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(255, 99, 132, 0.6)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            cutout: '60%',
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Line Chart: Earnings Overview
+    const ctxLine = document.getElementById('earningsChart').getContext('2d');
+    new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: [{% for month in earnings_months %}"{{ month }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Earnings (Ksh)',
+                data: [{% for value in earnings_values %}{{ value }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true, position: 'bottom' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Document{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'inventory_app/quotation_template/style.css' %}" type="text/css" media="all" />
+</head>
+
+<body>
+  <div class="py-4">
+    <div class="px-14 py-6">
+      <table class="w-full border-collapse border-spacing-0">
+        <tbody>
+          <tr>
+            <td class="w-full align-top" style="position: relative; height: 40px;">
+              <div style="position: absolute; top: -85px; left: -45px;">
+                <img src="{% static 'inventory_app/img/tml_logo_blue.png' %}"
+                style="max-height: 200px; width: auto;" />
+              </div>
+            </td>
+            <td class="align-top">
+              <div class="text-sm">
+                <table class="border-collapse border-spacing-0">
+                  <tbody>
+                    <tr>
+                      <td class="border-r pr-4">
+                        <div>
+                          <p class="whitespace-nowrap text-slate-400 text-right">Date</p>
+                          <p class="whitespace-nowrap font-bold text-main text-right">{% block date %}--{% endblock %}</p>
+                        </div>
+                      </td>
+                      <td class="pl-4">
+                        <div>
+                          <p class="whitespace-nowrap text-slate-400 text-right">{% block doc_type %}Document#{% endblock %}</p>
+                          <p class="whitespace-nowrap font-bold text-main text-right">{% block doc_number %}0001{% endblock %}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Supplier & Customer -->
+    <div class="bg-slate-100 px-14 py-6 text-sm">
+      <table class="w-full border-collapse border-spacing-0">
+        <tbody>
+          <tr>
+            <td class="w-1/2 align-top">
+              <div class="text-sm text-neutral-600">
+                {% block supplier_info %}
+                <p class="font-bold text-lg">Bill From:</p>
+                <p class="font-bold">Transmission Masters LTD</p>
+                <p>Tel: 0111 364 584/0733 364 584</p>
+                <p>sales@transmission.co.ke</p>
+                <p>Lusaka Rd 38,</p>
+                <p>Nairobi, Kenya</p>
+                <p>KRA PIN: P051312434P</p>
+                {% endblock %}
+              </div>
+            </td>
+            <td class="w-1/2 align-top text-right">
+              <div class="text-sm text-neutral-600">
+                {% block customer_info %}{% endblock %}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Items Table -->
+    <div class="px-14 py-10 text-sm text-neutral-700">
+      {% block items_table %}
+      <table class="w-full border-collapse border-spacing-0">
+        <thead>
+          <tr>
+            <td class="border-b-2 border-main pb-3 pl-3 font-bold text-main">#</td>
+            <td class="border-b-2 border-main pb-3 pl-2 font-bold text-main">Designation</td>
+            <td class="border-b-2 border-main pb-3 pl-2 font-bold text-main">Description</td>
+            <td class="border-b-2 border-main pb-3 pl-2 font-bold text-main">Brand</td>
+            <td class="border-b-2 border-main pb-3 pl-2 text-center font-bold text-main">Quantity</td>
+            <td class="border-b-2 border-main pb-3 pl-2 text-right font-bold text-main">Unit Price</td>
+            <td class="border-b-2 border-main pb-3 pl-2 pr-3 text-right font-bold text-main">Amount</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% block items_rows %}{% endblock %}
+        </tbody>
+      </table>
+      {% endblock %}
+    </div>
+
+    <!-- Totals -->
+    <div class="px-14 py-4 text-sm text-neutral-700">
+      {% block totals %}
+      <table class="w-full border-collapse border-spacing-0">
+        <tbody>
+          <tr>
+            <td class="w-full"></td>
+            <td>
+              <table class="w-full border-collapse border-spacing-0">
+                <tbody>
+                  <tr>
+                    <td class="border-b p-3">
+                      <div class="whitespace-nowrap text-slate-400">Subtotal:</div>
+                    </td>
+                    <td class="border-b p-3 text-right">
+                      <div class="whitespace-nowrap font-bold text-main">{% block subtotal %}0.00{% endblock %}</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="border-b p-3">
+                      <div class="whitespace-nowrap text-slate-400">Tax:</div>
+                    </td>
+                    <td class="border-b p-3 text-right">
+                      <div class="whitespace-nowrap font-bold text-main">{% block tax %}0.00{% endblock %}</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-main p-3">
+                      <div class="whitespace-nowrap font-bold text-white">Total:</div>
+                    </td>
+                    <td class="bg-main p-3 text-right">
+                      <div class="whitespace-nowrap font-bold text-white">{% block total %}0.00{% endblock %}</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endblock %}
+    </div>
+
+    <!-- Payment Details -->
+    <div class="px-14 text-sm text-neutral-700">
+  <div class="flex justify-between gap-10">
+    {% block payment_details %}
+      <div>
+        <p class="text-main font-bold">PAYMENT DETAILS</p>
+        <p>Banks of Banks</p>
+        <p>Bank/Sort Code: 1234567</p>
+        <p>Account Number: 123456678</p>
+        <p>Payment Reference: 0001</p>
+      </div>
+    {% endblock %}
+  </div>
+</div>
+
+
+    <!-- Notes -->
+    <div class="px-14 py-10 text-sm text-neutral-700">
+      {% block notes %}
+      <p class="text-main font-bold">Notes</p>
+      <p class="italic">E & O.E</p>
+      <p class="italic">Payment Terms: To be paid within 30 days of invoice date. Goods once sold are not returnable.</p>
+      <p class="italic">Overdue accounts incur 2% interest and 1% service charge monthly.</p>
+      <p class="italic">Paybill: 247247</p>
+      <p class="italic">Acc No: 376560</p>
+      {% endblock %}
+    </div>
+
+    <footer class="fixed bottom-0 left-0 bg-slate-100 w-full text-neutral-600 text-center text-xs py-3">
+      {% block footer %}Transmission Masters Ltd. <span class="text-slate-300 px-2">|</span> sales@transmission.co.ke
+      <span class="text-slate-300 px-2">|</span> 0111 364 584/ 0733 364 584{% endblock %}
+    </footer>
+  </div>
+</body>
+
+</html>

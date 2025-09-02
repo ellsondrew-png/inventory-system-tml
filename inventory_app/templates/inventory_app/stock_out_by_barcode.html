@@ -1,0 +1,82 @@
+{% extends 'inventory_app/base.html' %}
+{% load static %}
+
+{% block title %}Stock Out by Barcode{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Stock Out</h2>
+
+    <form method="post" id="stockOutForm">
+        {% csrf_token %}
+
+        <!-- Barcode -->
+        <div class="form-group">
+            <label>Scan or Enter Barcode <span class="text-danger">*</span></label>
+            <input type="text" name="barcode" id="barcode" class="form-control" placeholder="Enter or scan barcode" required autofocus>
+        </div>
+
+        <!-- Name -->
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="name" class="form-control" readonly>
+        </div>
+
+        <!-- Designation -->
+        <div class="form-group">
+            <label>Designation</label>
+            <input type="text" id="designation" class="form-control" readonly>
+        </div>
+
+        <!-- Brand -->
+        <div class="form-group">
+            <label>Brand</label>
+            <input type="text" id="brand" class="form-control" readonly>
+        </div>
+
+        <!-- Quantity -->
+        <div class="form-group">
+            <label>Quantity <span class="text-danger">*</span></label>
+            <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Enter quantity" required min="1">
+        </div>
+
+        <!-- Reason -->
+        <div class="form-group">
+            <label>Reason</label>
+            <select name="reason" class="form-control" required>
+                {% for code, reason in reasons %}
+                <option value="{{ code }}">{{ reason }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-danger mt-2">Remove Stock</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('barcode').addEventListener('change', function() {
+    const barcode = this.value.trim();
+    if (!barcode) return;
+
+    fetch(`/ajax/get_product/?barcode=${barcode}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                document.getElementById('name').value = '';
+                document.getElementById('designation').value = '';
+                document.getElementById('brand').value = '';
+            } else {
+                document.getElementById('name').value = data.name;
+                document.getElementById('designation').value = data.designation;
+                document.getElementById('brand').value = data.brand;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error fetching product');
+        });
+});
+</script>
+{% endblock %}

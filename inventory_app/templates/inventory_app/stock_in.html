@@ -1,0 +1,58 @@
+{% extends "inventory_app/base.html" %}
+{% load static %}
+
+{% block title %}Stock In{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Stock In</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Hidden Barcode -->
+            <input type="hidden" name="barcode" value="{{ product.barcode }}">
+
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" class="form-control" value="{{ product.name }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Designation</label>
+                <input type="text" class="form-control" value="{{ product.designation }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Brand</label>
+                <input type="text" class="form-control" value="{{ product.brand }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" class="form-control" value="{{ product.category.name }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Price</label>
+                <input type="text" class="form-control" value="{{ product.price }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Current Quantity</label>
+                <input type="number" class="form-control" value="{{ product.quantity }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Quantity to Add</label>
+                <input type="number" name="quantity" class="form-control" min="1" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Add Stock</button>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

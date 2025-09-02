@@ -1,0 +1,92 @@
+{% extends "inventory_app/base.html" %}
+{% load static %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Products</h2>
+
+    <a href="{% url 'product_create' %}" class="btn btn-success mb-3">+ Add Product</a>
+
+    <!-- Search Box -->
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search products by name, designation, brand, barcode or category" value="{{ query }}">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Low Stock Summary -->
+    {% with low_stock=products|dictsort:"quantity"|slice:":5" %}
+    {% if products|length > 0 %}
+        {% with low_count=0 %}
+            {% for product in products %}
+                {% if product.quantity <= 5 %}
+                    {% with low_count=low_count|add:"1" %}{% endwith %}
+                {% endif %}
+            {% endfor %}
+            {% if low_count > 0 %}
+            <div class="alert alert-warning">
+                <strong>Alert:</strong> {{ low_count }} product{{ low_count|pluralize }} low in stock!
+            </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Brand</th>
+                <th>Barcode</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'inventory_app/img/default_image.png' %}" alt="No image" style="width: 50px; height: 50px; object-fit: cover;">
+                    {% endif %}
+                </td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.designation }}</td>
+                <td>{{ product.brand }}</td>
+                <td>{{ product.barcode }}</td>
+                <td>{{ product.category.name }}</td>
+
+                <!-- Quantity with low stock highlight and tooltip -->
+                <td {% if product.quantity <= 5 %}class="text-danger font-weight-bold" title="Low Stock!"{% endif %}>
+                    {{ product.quantity }}
+                </td>
+
+                <td>{{ product.price }}</td>
+
+                <!-- Actions with nowrap -->
+                <td style="white-space: nowrap;">
+                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary mb-1">Edit</a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger mb-1">Delete</a>
+                    <a href="{% url 'stock_in' product.pk %}" class="btn btn-sm btn-success mb-1">Stock In</a>
+                    <a href="{% url 'stock_out' product.pk %}" class="btn btn-sm btn-warning mb-1">Stock Out</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No products available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

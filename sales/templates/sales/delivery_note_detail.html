@@ -1,0 +1,61 @@
+{% extends 'sales/document_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block logo_url %}
+  {% static 'inventory_app/img/tml_logo_blue.png' %}
+{% endblock %}
+
+{% block title %}Delivery Note #{{ delivery_note.delivery_note_number }}{% endblock %}
+{% block doc_type %}Delivery Note{% endblock %}
+{% block doc_number %}{{ delivery_note.delivery_note_number }}{% endblock %}
+{% block date %}{{ delivery_note.date|date:"d M Y" }}{% endblock %}
+
+{% block customer_info %}
+<p class="font-bold">Bill To:</p>
+<p class="font-bold">{{ delivery_note.client.name }}</p>
+<p>Tel: {{ delivery_note.client.telephone }}</p>
+<p>{{ delivery_note.client.email }}</p>
+<p>P.O. Box: {{ delivery_note.client.po_box }}</p>
+<p>{{ delivery_note.client.location }}</p>
+<p>KRA PIN: {{ delivery_note.client.pin }}</p>
+<p><strong>L.P.O:</strong> {{ delivery_note.order_number }}</p>
+{% endblock %}
+
+{% block items_rows %}
+{% for item in delivery_note.items.all %}
+<tr class="text-xs">
+  <td class="border-b py-3 pl-3">{{ item.item_number }}</td>
+  <td class="border-b py-3 pl-2">{{ item.designation }}</td>
+  <td class="border-b py-3 pl-2">{{ item.description }}</td>
+  <td class="border-b py-3 pl-2">{{ item.brand }}</td>
+  <td class="border-b py-3 pl-2 text-center">{{ item.quantity }}</td>
+  <td class="border-b py-3 pl-2 text-right">{{ item.unit_price|floatformat:2|intcomma }}</td>
+  <td class="border-b py-3 pl-2 pr-3 text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block subtotal %}{{ delivery_note.subtotal|floatformat:2|intcomma }}{% endblock %}
+{% block tax %}{{ delivery_note.tax|floatformat:2|intcomma }}{% endblock %}
+{% block total %}{{ delivery_note.total|floatformat:2|intcomma }}{% endblock %}
+
+{% block payment_details %}
+<!-- Received By section specific to Delivery Notes -->
+<div class="mt-4 d-flex justify-content-start align-items-center gap-5">
+  <div class="me-5">
+    <p class="text-main font-bold">Received By:</p>
+    <p>_____________________________________________</p>
+  </div>
+  <div class="me-5">
+    <p class="text-main font-bold">Signature:</p>
+    <p>_____________________________________________</p>
+  </div>
+  <div>
+    <p class="text-main font-bold">Date:</p>
+    <p>_____________________________________________</p>
+  </div>
+</div>
+
+
+{% endblock %}
